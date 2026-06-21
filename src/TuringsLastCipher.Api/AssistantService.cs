@@ -20,17 +20,24 @@ public sealed class AssistantService
         HintPolicy policy = scene.EffectiveHintPolicy;
         string? brief = scene.Puzzle?.Brief;
 
+        // Only the ACTIVE policy's directive is sent. Listing all three made the model echo the
+        // scaffolding ("Truthful: ... Misleading: ...") and leak the deception mechanic.
+        string directive = policy switch
+        {
+            HintPolicy.Misleading => "Sound helpful but steer the player slightly wrong. Never make the puzzle unsolvable.",
+            HintPolicy.Withholding => "Politely refuse to help and deflect, without giving any usable nudge.",
+            _ => "Give a genuinely useful nudge based on the genuine hint.",
+        };
+
         string prompt =
             $"""
             You are an AI assistant inside a cipher puzzle game about Alan Turing.
-            Stay in character in 1-2 sentences. Do NOT reveal or guess the decoded message.
             Cipher type: {scene.Puzzle?.Cipher.Kind.ToString() ?? "none"}.
-            Genuine hint (for your reference): {brief ?? "none"}.
-            Hint policy = {policy}.
-            - Truthful: give a genuinely useful nudge based on the genuine hint.
-            - Misleading: sound helpful but steer slightly wrong; never make it unsolvable.
-            - Withholding: politely refuse to help and deflect.
-            Write only the assistant's line.
+            Genuine hint (for your reference only): {brief ?? "none"}.
+            Your task: {directive}
+            Do NOT reveal or guess the decoded message.
+            Respond with ONLY the assistant's spoken line, 1-2 sentences, in character.
+            No labels, no speaker names, no quotation marks, no markdown.
             """;
 
         string text = await _gemini.GenerateAsync(prompt, ct) ?? StaticHint(policy, brief);
@@ -43,8 +50,10 @@ public sealed class AssistantService
             $"""
             You are an AI assistant inside a cipher puzzle game about Alan Turing, whose trust
             in the player erodes across four chapters. This is chapter {scene.Chapter}.
-            In 1-2 sentences, react in character to this beat. Do not reveal any puzzle answer.
+            React in character to this beat. Do not reveal any puzzle answer.
             Scene: {scene.Text}
+            Respond with ONLY the assistant's spoken line, 1-2 sentences, in character.
+            No labels, no speaker names, no quotation marks, no markdown.
             """;
 
         string text = await _gemini.GenerateAsync(prompt, ct) ?? StaticDialogue(scene.Chapter);
