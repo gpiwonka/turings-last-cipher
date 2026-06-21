@@ -1,0 +1,220 @@
+:root {
+    --bg: #0a0e0a;
+    --ink: #b8f0c0;
+    --ink-dim: #5f8a66;
+    --amber: #f0c674;
+    --bad: #e06c75;
+    --ok: #98c379;
+    --panel: #0f1610;
+    --line: #1c2a1e;
+}
+
+html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Consolas', 'SF Mono', 'Menlo', monospace;
+    line-height: 1.6;
+}
+
+.terminal {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+}
+
+.screen {
+    width: 100%;
+    max-width: 760px;
+}
+
+.title {
+    letter-spacing: 0.35em;
+    font-size: 1.1rem;
+    color: var(--amber);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.chapter {
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.75rem;
+    margin: 0 0 0.5rem;
+}
+
+.narration {
+    white-space: pre-wrap;
+    margin-bottom: 1.5rem;
+}
+
+.puzzle, .choices, .ending {
+    border-top: 1px solid var(--line);
+    padding-top: 1.25rem;
+    margin-top: 1.25rem;
+}
+
+.label {
+    color: var(--ink-dim);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.4rem;
+}
+
+.cipher {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 1rem;
+    color: var(--amber);
+    letter-spacing: 0.15em;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.solve {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.answer {
+    flex: 1 1 320px;
+    background: #060906;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 0.6rem 0.75rem;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.answer:focus { outline: 1px solid var(--ink-dim); }
+
+.btn {
+    background: transparent;
+    border: 1px solid var(--ink-dim);
+    color: var(--ink);
+    padding: 0.6rem 1rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+}
+
+.btn:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.ghost { border-color: var(--line); color: var(--ink-dim); }
+
+.choices { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+
+.tools { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+
+.feedback { margin-top: 0.75rem; }
+.feedback.bad { color: var(--bad); }
+.feedback.ok { color: var(--ok); }
+
+.assistant {
+    margin-top: 1rem;
+    padding: 0.6rem 0.75rem;
+    border-left: 2px solid var(--ink-dim);
+    background: var(--panel);
+}
+
+.assistant .who {
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    margin-right: 0.5rem;
+}
+
+/* A faint cue that the assistant's help may not be trustworthy. */
+.assistant.uneasy { border-left-color: var(--bad); animation: flicker 3s infinite; }
+@keyframes flicker { 0%,97%,100% { opacity: 1; } 98% { opacity: 0.6; } }
+
+.freq {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    margin-top: 1rem;
+    height: 130px;
+    border-bottom: 1px solid var(--line);
+}
+
+.bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+.bar .fill { width: 16px; background: var(--ink-dim); }
+.bar .letter { font-size: 0.65rem; color: var(--ink-dim); margin-top: 2px; }
+
+.ending .fin { color: var(--amber); letter-spacing: 0.2em; }
+.loading { color: var(--ink-dim); }
+
+.machine {
+    margin-top: 1rem;
+    border: 1px solid var(--line);
+    padding: 0.9rem;
+    background: var(--panel);
+}
+
+.dials { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+.dial {
+    background: #060906;
+    border: 1px solid var(--ink-dim);
+    color: var(--amber);
+    font-family: inherit;
+    font-size: 1.1rem;
+    padding: 0.4rem 0.5rem;
+}
+
+.cipher.decoded { color: var(--ok); margin-top: 0.9rem; }
+
+/* Blazor framework elements, themed dark. */
+#blazor-error-ui {
+    background: #2a1414;
+    color: var(--bad);
+    bottom: 0;
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .reload { color: var(--amber); }
+#blazor-error-ui .dismiss { cursor: pointer; position: absolute; right: 0.75rem; top: 0.5rem; }
+
+.loading-progress {
+    position: relative;
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    margin: 20vh auto 1rem auto;
+}
+
+.loading-progress circle {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 0.6rem;
+    transform-origin: 50% 50%;
+    transform: rotate(-90deg);
+}
+
+.loading-progress circle:last-child {
+    stroke: var(--amber);
+    stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
+    transition: stroke-dasharray 0.05s ease-in-out;
+}
+
+.loading-progress-text {
+    position: absolute;
+    text-align: center;
+    inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
+    color: var(--ink-dim);
+}
+
+.loading-progress-text:after { content: var(--blazor-load-percentage-text, "Loading"); }

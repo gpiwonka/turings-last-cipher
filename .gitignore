@@ -1,0 +1,18 @@
+# Build output
+bin/
+obj/
+publish/
+[Dd]ebug/
+[Rr]elease/
+
+# Local logs / temp
+*.log
+
+# User / IDE
+.vs/
+*.user
+*.suo
+
+# Secrets — the Gemini key must never be committed
+appsettings.*.local.json
+.env

@@ -1,0 +1,211 @@
+@page "/"
+@inject GameApi Api
+
+<PageTitle>Turing's Last Cipher</PageTitle>
+
+<div class="screen">
+    <header class="title">TURING'S LAST CIPHER</header>
+
+    @if (_scene is null)
+    {
+        <p class="loading">Establishing connection&hellip;</p>
+    }
+    else
+    {
+        <p class="chapter">Chapter @_scene.Chapter</p>
+
+        <article class="narration">@_scene.Text</article>
+
+        @if (_scene.Puzzle is { } puzzle)
+        {
+            <section class="puzzle">
+                <p class="label">Encrypted message — @puzzle.Cipher</p>
+                <pre class="cipher">@puzzle.Ciphertext</pre>
+
+                <div class="solve">
+                    <input class="answer" placeholder="Type the decrypted message…"
+                           @bind="_answer" @bind:event="oninput"
+                           @onkeydown="OnKeyDown" disabled="@_busy" />
+                    <button class="btn" @onclick="Solve" disabled="@_busy">Decrypt</button>
+                </div>
+
+                @if (_feedback is not null)
+                {
+                    <p class="feedback @(_solved ? "ok" : "bad")">@_feedback</p>
+                }
+
+                <div class="tools">
+                    <button class="btn ghost" @onclick="AskHint" disabled="@_busy">Ask the assistant</button>
+                    @if (puzzle.Enigma is null)
+                    {
+                        <button class="btn ghost" @onclick="ToggleFrequency" disabled="@_busy">
+                            @(_showFreq ? "Hide" : "Show") frequency
+                        </button>
+                    }
+                </div>
+
+                @if (_hint is not null)
+                {
+                    <p class="assistant @(_hint.Policy == "Truthful" ? "" : "uneasy")">
+                        <span class="who">assistant</span> @_hint.Text
+                    </p>
+                }
+
+                @if (_showFreq && _freq is not null)
+                {
+                    <div class="freq">
+                        @foreach (var f in _freq)
+                        {
+                            <span class="bar" title="@f.Letter: @f.Count">
+                                <span class="fill" style="height:@(Math.Min(100, f.Count * 18))px"></span>
+                                <span class="letter">@f.Letter</span>
+                            </span>
+                        }
+                    </div>
+                }
+
+                @if (puzzle.Enigma is { } enigma)
+                {
+                    <div class="machine">
+                        <p class="label">Enigma — rotors @string.Join("-", enigma.Rotors), reflector @enigma.Reflector@(string.IsNullOrWhiteSpace(enigma.Plugboard) ? "" : $", plugboard {enigma.Plugboard}")</p>
+                        <div class="dials">
+                            @for (int r = 0; r < enigma.RotorCount; r++)
+                            {
+                                int index = r;
+                                <select class="dial" @onchange="e => SetRotor(index, e)" disabled="@_busy">
+                                    @for (int v = 0; v < 26; v++)
+                                    {
+                                        <option value="@v" selected="@(_enigmaPositions.Length > index && _enigmaPositions[index] == v)">
+                                            @((char)('A' + v))
+                                        </option>
+                                    }
+                                </select>
+                            }
+                            <button class="btn" @onclick="Decode" disabled="@_busy">Decode tape</button>
+                        </div>
+                        @if (_enigmaOutput is not null)
+                        {
+                            <pre class="cipher decoded">@_enigmaOutput</pre>
+                            <button class="btn ghost" @onclick="() => _answer = _enigmaOutput!">Use as answer</button>
+                        }
+                    </div>
+                }
+            </section>
+        }
+
+        @if (_scene.Choices.Count > 0)
+        {
+            <section class="choices">
+                @foreach (var choice in _scene.Choices)
+                {
+                    <button class="btn" @onclick="() => Go(choice.Next)" disabled="@_busy">@choice.Text</button>
+                }
+            </section>
+        }
+
+        @if (_scene.IsEnding)
+        {
+            <section class="ending">
+                <p class="fin">— end of transmission —</p>
+                <button class="btn ghost" @onclick="Restart">Begin again</button>
+            </section>
+        }
+    }
+</div>
+
+@code {
+    private SceneView? _scene;
+    private string _answer = string.Empty;
+    private string? _feedback;
+    private bool _solved;
+    private bool _busy;
+    private HintResult? _hint;
+    private IReadOnlyList<LetterCount>? _freq;
+    private bool _showFreq;
+    private int[] _enigmaPositions = Array.Empty<int>();
+    private string? _enigmaOutput;
+
+    protected override Task OnInitializedAsync() => Restart();
+
+    private async Task Restart()
+    {
+        _scene = await Api.StartAsync();
+        ResetSceneState();
+    }
+
+    private async Task Go(string sceneId)
+    {
+        _busy = true;
+        _scene = await Api.SceneAsync(sceneId);
+        ResetSceneState();
+        _busy = false;
+    }
+
+    private async Task Solve()
+    {
+        if (_scene?.Puzzle is null || string.IsNullOrWhiteSpace(_answer) || _busy) return;
+        _busy = true;
+        var result = await Api.SolveAsync(_scene.Id, _answer);
+        if (result.Solved && result.Next is not null)
+        {
+            _scene = await Api.SceneAsync(result.Next);
+            ResetSceneState();
+        }
+        else
+        {
+            _solved = false;
+            _feedback = "That is not it. Look again — the message is still scrambled.";
+        }
+        _busy = false;
+    }
+
+    private async Task AskHint()
+    {
+        if (_scene is null) return;
+        _busy = true;
+        _hint = await Api.HintAsync(_scene.Id);
+        _busy = false;
+    }
+
+    private async Task ToggleFrequency()
+    {
+        _showFreq = !_showFreq;
+        if (_showFreq && _freq is null && _scene?.Puzzle is { } p)
+        {
+            _busy = true;
+            _freq = await Api.FrequencyAsync(p.Ciphertext);
+            _busy = false;
+        }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await Solve();
+    }
+
+    private void SetRotor(int index, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int value) && index < _enigmaPositions.Length)
+            _enigmaPositions[index] = value;
+    }
+
+    private async Task Decode()
+    {
+        if (_scene?.Puzzle?.Enigma is null) return;
+        _busy = true;
+        _enigmaOutput = await Api.EnigmaDecodeAsync(_scene.Id, _enigmaPositions);
+        _busy = false;
+    }
+
+    private void ResetSceneState()
+    {
+        _answer = string.Empty;
+        _feedback = null;
+        _solved = false;
+        _hint = null;
+        _freq = null;
+        _showFreq = false;
+        _enigmaOutput = null;
+        _enigmaPositions = _scene?.Puzzle?.Enigma is { } e ? new int[e.RotorCount] : Array.Empty<int>();
+    }
+}

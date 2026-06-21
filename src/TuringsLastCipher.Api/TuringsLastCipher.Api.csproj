@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\TuringsLastCipher.Core\TuringsLastCipher.Core.csproj" />
+    <ProjectReference Include="..\TuringsLastCipher.Client\TuringsLastCipher.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Ship the story content beside the binary so StoryProvider finds it at runtime. -->
+    <Content Include="..\..\content\scenes\story.json" Link="content\scenes\story.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

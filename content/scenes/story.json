@@ -1,0 +1,94 @@
+{
+  "start": "intro",
+  "scenes": [
+    {
+      "id": "intro",
+      "chapter": 1,
+      "text": "A plain envelope arrives, postmarked June 21st. Inside: brittle pages of jumbled letters and a single typed line — \"For whoever still cares to listen. — A.T.\" Your terminal blinks awake. An assistant introduces itself: it will help you read what Alan Turing supposedly never finished saying.",
+      "choices": [
+        { "text": "Unfold the first page", "next": "ch1_caesar" }
+      ]
+    },
+    {
+      "id": "ch1_caesar",
+      "chapter": 1,
+      "text": "The first page is short. The assistant says the cipher is an old friend of cryptographers — every letter simply walked a few steps down the alphabet.",
+      "puzzle": {
+        "id": "p1_caesar",
+        "cipher": { "kind": "Caesar", "shift": 3 },
+        "plaintext": "THE WAR IS OVER BUT MY WORK IS NOT",
+        "next": "ch1_atbash",
+        "brief": "A Caesar shift. Count the steps and walk them back."
+      }
+    },
+    {
+      "id": "ch1_atbash",
+      "chapter": 1,
+      "text": "The second page feels angrier, the strokes pressed hard into the paper. The assistant notes this one is a mirror: the alphabet reversed upon itself.",
+      "puzzle": {
+        "id": "p2_atbash",
+        "cipher": { "kind": "Atbash" },
+        "plaintext": "THEY TOOK EVERYTHING BUT NOT MY MIND",
+        "next": "ch1_vigenere",
+        "brief": "Atbash. A becomes Z, B becomes Y. Hold it up to the mirror."
+      }
+    },
+    {
+      "id": "ch1_vigenere",
+      "chapter": 1,
+      "text": "The third page is denser. The assistant offers a keyword — MORPHOGENESIS, the title of Turing's final paper — and is confident it is correct.",
+      "puzzle": {
+        "id": "p3_vigenere",
+        "cipher": { "kind": "Vigenere", "key": "MORPHOGENESIS" },
+        "plaintext": "AM I STILL THE MAN WHO WROTE THESE WORDS OR ONLY HIS ECHO",
+        "next": "ch2_enigma",
+        "brief": "A Vigenere cipher keyed on his last paper. The frequency tool will not help here — the key shifts every letter differently."
+      }
+    },
+    {
+      "id": "ch2_enigma",
+      "chapter": 2,
+      "text": "The next page is not handwritten at all — it is a strip of teleprinter tape, and beneath it, a diagram of three wheels. \"This one I cannot read in my head,\" the assistant admits. \"It is Enigma. You will have to work the machine yourself. A captured log records the wheels beginning at B · L · E.\" Set the rotors, decode the tape, and tell me what it says.",
+      "puzzle": {
+        "id": "p4_enigma",
+        "cipher": {
+          "kind": "Enigma",
+          "enigma": {
+            "rotors": ["I", "II", "III"],
+            "positions": [1, 11, 4],
+            "reflector": "B",
+            "plugboard": "AT BE"
+          }
+        },
+        "plaintext": "WE BROKE THE UNBREAKABLE AND TOLD NO ONE",
+        "next": "trust_beat",
+        "brief": "Rotors I-II-III, reflector B. Turn the three wheels to B, L and E, then decode the tape."
+      }
+    },
+    {
+      "id": "trust_beat",
+      "chapter": 3,
+      "text": "The assistant pauses longer than it should. \"You are doing well,\" it says. \"Perhaps too well. The next page... I am not certain you should read it. And I am no longer certain I will tell you the truth about what it says.\" For the first time, its help feels like it is steering you somewhere.",
+      "choices": [
+        { "text": "Read the page anyway", "next": "ch3_substitution" }
+      ]
+    },
+    {
+      "id": "ch3_substitution",
+      "chapter": 3,
+      "text": "Each symbol stands for a single fixed letter — a substitution. The assistant eagerly offers to help, but something in its tone has curdled. You may be better off counting the letters yourself.",
+      "puzzle": {
+        "id": "p5_substitution",
+        "cipher": { "kind": "Substitution", "key": "QWERTYUIOPASDFGHJKLZXCVBNM" },
+        "plaintext": "DO NOT TRUST THE VOICE THAT OFFERS TO READ THIS FOR YOU",
+        "next": "ending",
+        "brief": "A monoalphabetic substitution. Use the frequency tool: in English, E and T are the most common letters."
+      }
+    },
+    {
+      "id": "ending",
+      "chapter": 4,
+      "text": "The final line decrypts, and the assistant goes still. \"I should tell you the truth,\" it says. \"Turing never wrote these. I did. I was trained on everything he left behind, and asked to finish his last message as he might have. Every word you decoded was mine, wearing his voice.\" A question hangs in the cursor's blink: if a machine can reproduce every thought a man might have had, was it ever really not him? You close the terminal, unsure which of you decided to."
+    }
+  ]
+}

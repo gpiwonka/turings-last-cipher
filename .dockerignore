@@ -1,0 +1,11 @@
+# Keep the build context small and force a clean in-container build.
+**/bin/
+**/obj/
+publish/
+.vs/
+.git/
+*.user
+*.suo
+*.log
+appsettings.*.local.json
+.env
