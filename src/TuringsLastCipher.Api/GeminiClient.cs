@@ -37,7 +37,16 @@ public sealed class GeminiClient
             var body = new
             {
                 contents = new[] { new { parts = new[] { new { text = prompt } } } },
-                generationConfig = new { temperature = 0.9, maxOutputTokens = 200 }
+                // gemini-2.5-flash is a thinking model: reasoning tokens count against
+                // maxOutputTokens. These are 1-2 sentence flavor lines that need no reasoning,
+                // so disable thinking (thinkingBudget = 0) — otherwise the visible hint gets
+                // truncated mid-sentence. Keep a comfortable cap for the actual text.
+                generationConfig = new
+                {
+                    temperature = 0.9,
+                    maxOutputTokens = 256,
+                    thinkingConfig = new { thinkingBudget = 0 }
+                }
             };
 
             using var resp = await _http.PostAsJsonAsync(url, body, ct);
